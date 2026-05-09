@@ -28,7 +28,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
-import { CONTACT_EMAIL, buildContactMailto } from '@/lib/contact';
+import {
+  CONTACT_EMAIL,
+  buildContactMailto,
+  deliverContactViaFormSubmit,
+} from '@/lib/contact';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -72,22 +76,31 @@ const ContactPage = () => {
       }
 
       if (response.ok) {
-        toast.success('Message sent successfully. We will contact you within 24 hours.');
-        form.reset();
-        return;
-      }
-
-      if (response.status === 503 && payload.mailtoFallback) {
-        toast.warning('Email sending is not configured on the server yet', {
-          description: `Add SMTP or Resend in Vercel (see .env.example). Until then, send your message to ${CONTACT_EMAIL} manually, or use Open in email app.`,
-          duration: 14_000,
-          action: {
-            label: 'Open in email app',
-            onClick: () => {
-              window.location.href = buildContactMailto(data);
+        if (payload.deliver === 'client-formsubmit') {
+          const inbox =
+            typeof payload.inbox === 'string' ? payload.inbox : CONTACT_EMAIL;
+          const sent = await deliverContactViaFormSubmit(data, inbox);
+          if (sent) {
+            toast.success(
+              'Message sent successfully. We will contact you within 24 hours.',
+            );
+            form.reset();
+            return;
+          }
+          toast.warning('Could not send automatically', {
+            description: `Email us at ${CONTACT_EMAIL}, or use Open in email app. First-time FormSubmit sends an activation email — check ${CONTACT_EMAIL} and click the link once.`,
+            duration: 16_000,
+            action: {
+              label: 'Open in email app',
+              onClick: () => {
+                window.location.href = buildContactMailto(data);
+              },
             },
-          },
-        });
+          });
+          return;
+        }
+
+        toast.success('Message sent successfully. We will contact you within 24 hours.');
         form.reset();
         return;
       }

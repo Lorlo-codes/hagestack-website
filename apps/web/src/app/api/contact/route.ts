@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 import { z } from 'zod';
 import {
   CONTACT_EMAIL,
-  SERVICE_LABELS,
+  buildContactMessageBody,
 } from '@/lib/contact';
 
 const bodySchema = z.object({
@@ -24,58 +24,9 @@ function escapeHtml(text: string): string {
 }
 
 function buildBodies(data: z.infer<typeof bodySchema>) {
-  const serviceLabel = SERVICE_LABELS[data.service] ?? data.service;
-  const textBody = [
-    'New contact form submission (hagestack.com)',
-    '',
-    `Name: ${data.name}`,
-    `Email: ${data.email}`,
-    `Phone: ${data.phone}`,
-    `Company: ${data.company}`,
-    `Service: ${serviceLabel}`,
-    '',
-    'Message:',
-    data.message,
-  ].join('\n');
-
+  const { serviceLabel, textBody } = buildContactMessageBody(data);
   const htmlBody = `<pre style="font-family:system-ui,sans-serif;white-space:pre-wrap">${escapeHtml(textBody)}</pre>`;
-
   return { serviceLabel, textBody, htmlBody };
-}
-
-/** No API keys required — forwards to inbox via FormSubmit (first use may require email activation from FormSubmit). */
-async function sendViaFormSubmit(
-  toEmail: string,
-  data: z.infer<typeof bodySchema>,
-  serviceLabel: string,
-  textBody: string,
-): Promise<boolean> {
-  const url = `https://formsubmit.co/ajax/${encodeURIComponent(toEmail)}`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    },
-    body: JSON.stringify({
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      company: data.company,
-      service: serviceLabel,
-      message: textBody,
-      _subject: `Contact: ${data.name} — ${serviceLabel}`,
-      _replyto: data.email,
-    }),
-  });
-
-  if (!res.ok) {
-    const errText = await res.text();
-    console.error('FormSubmit error:', res.status, errText);
-    return false;
-  }
-
-  return true;
 }
 
 export async function GET() {
@@ -97,7 +48,7 @@ export async function GET() {
     inbox,
     note:
       delivery === 'formsubmit'
-        ? 'Uses FormSubmit as fallback (no Vercel env required). First submission may send an activation email from FormSubmit — click it once.'
+        ? 'Validated on the server; FormSubmit runs in the visitor’s browser (works without Vercel mail env).'
         : delivery === 'resend'
           ? 'Uses Resend. Verify domain in Resend for production.'
           : 'Uses your Hostinger SMTP credentials from env.',
@@ -207,16 +158,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  const ok = await sendViaFormSubmit(to, data, serviceLabel, textBody);
-  if (ok) {
-    return NextResponse.json({ ok: true });
-  }
-
-  return NextResponse.json(
-    {
-      error: 'Could not send message',
-      mailtoFallback: true,
-    },
-    { status: 503 },
-  );
+  /* No Resend/SMTP: validate here, deliver via FormSubmit from the browser (server-side FormSubmit is unreliable). */
+  return NextResponse.json({
+    deliver: 'client-formsubmit',
+    inbox: to,
+  });
 }
