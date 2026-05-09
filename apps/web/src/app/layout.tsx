@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   title: "HageStack",
   description:
     "Expert software development, custom systems, security solutions, and IT consulting services. Building secure, scalable technology for businesses.",
+  verification: {
+    google: "j0_J1Y1f0o4AvJoM_JtKEVrwWVBl7o4fWoHsSer64yU",
+  },
 };
 
 export default function RootLayout({
