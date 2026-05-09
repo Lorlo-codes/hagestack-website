@@ -20,22 +20,18 @@ export type ContactFormPayload = {
   message: string;
 };
 
-/** Plain-text body used by API + FormSubmit (must stay in sync). */
+/** Plain-text body for Resend / SMTP / mailto — single readable block, no duplicated fields. */
 export function buildContactMessageBody(data: ContactFormPayload): {
   serviceLabel: string;
   textBody: string;
 } {
   const serviceLabel = SERVICE_LABELS[data.service] ?? data.service;
   const textBody = [
-    'New contact form submission (hagestack.com)',
+    `hagestack.com contact form — ${serviceLabel}`,
     '',
-    `Name: ${data.name}`,
-    `Email: ${data.email}`,
-    `Phone: ${data.phone}`,
+    `${data.name} · ${data.email} · ${data.phone}`,
     `Company: ${data.company}`,
-    `Service: ${serviceLabel}`,
     '',
-    'Message:',
     data.message,
   ].join('\n');
   return { serviceLabel, textBody };
@@ -46,8 +42,9 @@ export async function deliverContactViaFormSubmit(
   data: ContactFormPayload,
   inboxEmail: string,
 ): Promise<boolean> {
-  const { serviceLabel, textBody } = buildContactMessageBody(data);
+  const { serviceLabel } = buildContactMessageBody(data);
   const url = `https://formsubmit.co/ajax/${encodeURIComponent(inboxEmail)}`;
+  /* One field per row — `message` is only the visitor’s text (no duplicate name/email block). */
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -55,15 +52,16 @@ export async function deliverContactViaFormSubmit(
       Accept: 'application/json',
     },
     body: JSON.stringify({
-      name: data.name,
-      email: data.email,
-      phone: data.phone,
-      company: data.company,
-      service: serviceLabel,
-      message: textBody,
-      _subject: `Contact: ${data.name} — ${serviceLabel}`,
+      Name: data.name,
+      Email: data.email,
+      Phone: data.phone,
+      Company: data.company,
+      Service: serviceLabel,
+      Message: data.message,
+      _subject: `hagestack.com · ${serviceLabel} · ${data.name}`,
       _replyto: data.email,
       _captcha: false,
+      _template: 'table',
     }),
   });
 
