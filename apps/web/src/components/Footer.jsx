@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Mail, Phone, MapPin, Linkedin, Twitter, Github } from 'lucide-react';
+import { CONTACT_EMAIL } from '@/lib/contact';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -69,8 +70,8 @@ const Footer = () => {
               </li>
               <li className="flex items-center space-x-2 text-sm">
                 <Mail className="h-4 w-4 flex-shrink-0" />
-                <a href="mailto:info@hagestack.com" className="hover:text-foreground transition-colors duration-200">
-                  info@hagestack.com
+                <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-foreground transition-colors duration-200">
+                  {CONTACT_EMAIL}
                 </a>
               </li>
             </ul>

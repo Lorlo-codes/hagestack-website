@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
+import { CONTACT_EMAIL, buildContactMailto } from '@/lib/contact';
 
 const formSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -55,20 +56,40 @@ const ContactPage = () => {
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
-    
+
     try {
-      const submissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
-      submissions.push({
-        ...data,
-        timestamp: new Date().toISOString(),
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
       });
-      localStorage.setItem('contactSubmissions', JSON.stringify(submissions));
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast.success('Message sent successfully. We will contact you within 24 hours.');
-      form.reset();
-    } catch (error) {
+
+      let payload = {};
+      try {
+        payload = await response.json();
+      } catch {
+        payload = {};
+      }
+
+      if (response.ok) {
+        toast.success('Message sent successfully. We will contact you within 24 hours.');
+        form.reset();
+        return;
+      }
+
+      if (response.status === 503 && payload.mailtoFallback) {
+        toast.info('Opening your email app to send to ' + CONTACT_EMAIL);
+        window.location.href = buildContactMailto(data);
+        form.reset();
+        return;
+      }
+
+      toast.error(
+        typeof payload.error === 'string'
+          ? payload.error
+          : 'Failed to send message. Please try again or email us directly.',
+      );
+    } catch {
       toast.error('Failed to send message. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -89,7 +110,7 @@ const ContactPage = () => {
     {
       icon: Mail,
       title: 'Email',
-      content: 'info@hagestack.com',
+      content: CONTACT_EMAIL,
     },
     {
       icon: Clock,
@@ -293,7 +314,7 @@ const ContactPage = () => {
                                   {info.content}
                                 </a>
                               ) : info.title === 'Email' ? (
-                                <a href="mailto:info@hagestack.com" className="hover:text-foreground transition-colors duration-200">
+                                <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-foreground transition-colors duration-200">
                                   {info.content}
                                 </a>
                               ) : (
