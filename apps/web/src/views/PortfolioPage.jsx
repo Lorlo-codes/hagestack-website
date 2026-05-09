@@ -9,6 +9,16 @@ import PortfolioCard from '@/components/PortfolioCard.jsx';
 const PortfolioPage = () => {
   const projects = [
     {
+      title: 'Elge Go — elgego.com',
+      industry: 'Corporate website',
+      description:
+        'Public marketing site at elgego.com with clear service positioning, streamlined contact paths, and fast, reliable hosting.',
+      technologies: ['Next.js', 'Tailwind CSS', 'Vercel'],
+      outcome:
+        'Professional brand presence online with responsive layout and performance-focused delivery',
+      image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f',
+    },
+    {
       title: 'Meridian Labs inventory system',
       industry: 'Healthcare',
       description: 'Custom inventory management system for medical equipment tracking across multiple facilities with real-time stock monitoring.',
@@ -102,7 +112,7 @@ const PortfolioPage = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {projects.map((project, index) => (
                   <motion.div
-                    key={index}
+                    key={project.title}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
