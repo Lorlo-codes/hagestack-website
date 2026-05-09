@@ -78,8 +78,16 @@ const ContactPage = () => {
       }
 
       if (response.status === 503 && payload.mailtoFallback) {
-        toast.info('Opening your email app to send to ' + CONTACT_EMAIL);
-        window.location.href = buildContactMailto(data);
+        toast.warning('Email sending is not configured on the server yet', {
+          description: `Add SMTP or Resend in Vercel (see .env.example). Until then, send your message to ${CONTACT_EMAIL} manually, or use Open in email app.`,
+          duration: 14_000,
+          action: {
+            label: 'Open in email app',
+            onClick: () => {
+              window.location.href = buildContactMailto(data);
+            },
+          },
+        });
         form.reset();
         return;
       }
