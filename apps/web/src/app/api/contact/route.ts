@@ -43,6 +43,67 @@ function buildBodies(data: z.infer<typeof bodySchema>) {
   return { serviceLabel, textBody, htmlBody };
 }
 
+/** No API keys required — forwards to inbox via FormSubmit (first use may require email activation from FormSubmit). */
+async function sendViaFormSubmit(
+  toEmail: string,
+  data: z.infer<typeof bodySchema>,
+  serviceLabel: string,
+  textBody: string,
+): Promise<boolean> {
+  const url = `https://formsubmit.co/ajax/${encodeURIComponent(toEmail)}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      company: data.company,
+      service: serviceLabel,
+      message: textBody,
+      _subject: `Contact: ${data.name} — ${serviceLabel}`,
+      _replyto: data.email,
+    }),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error('FormSubmit error:', res.status, errText);
+    return false;
+  }
+
+  return true;
+}
+
+export async function GET() {
+  const hasResend = Boolean(process.env.RESEND_API_KEY?.trim());
+  const hasSmtp = Boolean(
+    process.env.SMTP_HOST?.trim() &&
+      process.env.SMTP_USER?.trim() &&
+      process.env.SMTP_PASSWORD,
+  );
+  const inbox = process.env.CONTACT_EMAIL_TO ?? CONTACT_EMAIL;
+
+  let delivery: 'resend' | 'smtp' | 'formsubmit';
+  if (hasResend) delivery = 'resend';
+  else if (hasSmtp) delivery = 'smtp';
+  else delivery = 'formsubmit';
+
+  return NextResponse.json({
+    delivery,
+    inbox,
+    note:
+      delivery === 'formsubmit'
+        ? 'Uses FormSubmit as fallback (no Vercel env required). First submission may send an activation email from FormSubmit — click it once.'
+        : delivery === 'resend'
+          ? 'Uses Resend. Verify domain in Resend for production.'
+          : 'Uses your Hostinger SMTP credentials from env.',
+  });
+}
+
 export async function POST(request: Request) {
   let json: unknown;
   try {
@@ -63,7 +124,7 @@ export async function POST(request: Request) {
   const to = process.env.CONTACT_EMAIL_TO ?? CONTACT_EMAIL;
   const { serviceLabel, textBody, htmlBody } = buildBodies(data);
 
-  const apiKey = process.env.RESEND_API_KEY;
+  const apiKey = process.env.RESEND_API_KEY?.trim();
   const fromResend =
     process.env.RESEND_FROM_EMAIL ?? 'HageStack <onboarding@resend.dev>';
 
@@ -109,6 +170,11 @@ export async function POST(request: Request) {
         user: smtpUser,
         pass: smtpPass,
       },
+      connectionTimeout: 25_000,
+      greetingTimeout: 25_000,
+      socketTimeout: 25_000,
+      requireTLS: !secure && port === 587,
+      tls: { minVersion: 'TLSv1.2' as const },
     });
 
     const from =
@@ -123,16 +189,34 @@ export async function POST(request: Request) {
         text: textBody,
         html: htmlBody,
       });
-    } catch (err) {
-      console.error('SMTP error:', err);
-      return NextResponse.json({ error: 'Failed to send message' }, { status: 502 });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error('SMTP error:', message);
+      return NextResponse.json(
+        {
+          error:
+            'Could not send email via SMTP. Check Vercel logs and SMTP_* env vars.',
+          hint: message.includes('Invalid login')
+            ? 'SMTP_USER / SMTP_PASSWORD rejected — update in Vercel.'
+            : undefined,
+        },
+        { status: 502 },
+      );
     }
 
     return NextResponse.json({ ok: true });
   }
 
+  const ok = await sendViaFormSubmit(to, data, serviceLabel, textBody);
+  if (ok) {
+    return NextResponse.json({ ok: true });
+  }
+
   return NextResponse.json(
-    { error: 'Email delivery is not configured', mailtoFallback: true },
+    {
+      error: 'Could not send message',
+      mailtoFallback: true,
+    },
     { status: 503 },
   );
 }
