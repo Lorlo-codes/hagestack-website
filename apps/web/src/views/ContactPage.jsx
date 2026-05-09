@@ -79,7 +79,7 @@ const ContactPage = () => {
     {
       icon: MapPin,
       title: 'Office address',
-      content: '123 Tech Boulevard, Innovation District, San Francisco, CA 94105',
+      content: 'Lashibi, Transformer Junction. Accra - Ghana.',
     },
     {
       icon: Phone,
@@ -94,7 +94,7 @@ const ContactPage = () => {
     {
       icon: Clock,
       title: 'Business hours',
-      content: 'Monday - Friday: 9:00 AM - 6:00 PM PST',
+      content: '24/7',
     },
   ];
 

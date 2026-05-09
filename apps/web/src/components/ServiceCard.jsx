@@ -1,7 +1,5 @@
 import React from 'react';
-import { ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 
 const ServiceCard = ({ icon: Icon, title, description, features, variant = 'default' }) => {
   return (
@@ -26,12 +24,6 @@ const ServiceCard = ({ icon: Icon, title, description, features, variant = 'defa
             ))}
           </ul>
         )}
-        <div className="mt-auto">
-          <Button variant="ghost" className="group transition-all duration-200 active:scale-[0.98]">
-            Learn more
-            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
-          </Button>
-        </div>
       </CardContent>
     </Card>
   );

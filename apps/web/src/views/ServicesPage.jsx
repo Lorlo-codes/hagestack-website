@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Code, Database, Camera, Fingerprint, KeyRound, HardDrive, Headphones } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import Header from '@/components/Header.jsx';
 import Footer from '@/components/Footer.jsx';
 import ServiceCard from '@/components/ServiceCard.jsx';
@@ -148,6 +150,13 @@ const ServicesPage = () => {
                 <p className="text-muted-foreground leading-relaxed mb-8 max-w-2xl mx-auto">
                   Our team can help you identify the right solutions for your business. Schedule a free consultation to discuss your requirements.
                 </p>
+                <div className="flex justify-center">
+                  <Link href="/contact">
+                    <Button className="transition-all duration-200 active:scale-[0.98]">
+                      Schedule Consultation
+                    </Button>
+                  </Link>
+                </div>
               </motion.div>
             </div>
           </section>
