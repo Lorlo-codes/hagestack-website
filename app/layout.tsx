@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
-import type { ReactNode } from 'react';
 import { DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/Providers';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import FloatingCTA from '@/components/FloatingCTA';
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -33,26 +35,34 @@ export const metadata: Metadata = {
     'custom software',
     'IT consulting',
     'technology consulting',
-    'cybersecurity',
     'secure systems',
     'business software',
     'web development',
     'systems integration',
     'scalable applications',
     'enterprise IT',
+    'Hage',
+    'stack',
+    'hagestack',
+    'surveillance',
+    'security',
+    'Ghana',
+    'CCTV',
+    'camera',
+    'website',
   ],
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: '/',
     siteName: 'HageStack',
-    title: 'HageStack — Professional IT solutions for modern businesses',
+    title: 'HageStack - Professional IT solutions for modern businesses',
     description:
       'Expert software development, custom systems, security solutions, and IT consulting services. Building secure, scalable technology for businesses.',
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'HageStack — Professional IT solutions for modern businesses',
+    card: 'summary',
+    title: 'HageStack - Professional IT solutions for modern businesses',
     description:
       'Expert software development, custom systems, security solutions, and IT consulting services. Building secure, scalable technology for businesses.',
   },
@@ -75,12 +85,19 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: ReactNode;
+  children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${dmSans.variable} ${jetbrainsMono.variable} min-h-screen font-sans antialiased`}>
-        <Providers>{children}</Providers>
+    <html lang="en" className={`${dmSans.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+      <body className="min-h-screen antialiased">
+        <Providers>
+          <div className="min-h-screen bg-background">
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+            <FloatingCTA />
+          </div>
+        </Providers>
       </body>
     </html>
   );

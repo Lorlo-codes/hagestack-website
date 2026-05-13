@@ -1,20 +1,27 @@
 import type { MetadataRoute } from 'next';
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://hagestack.com';
-
-const routes = [
-  { path: '/', changeFrequency: 'weekly' as const, priority: 1 },
-  { path: '/services', changeFrequency: 'monthly' as const, priority: 0.9 },
-  { path: '/about', changeFrequency: 'monthly' as const, priority: 0.85 },
-  { path: '/portfolio', changeFrequency: 'monthly' as const, priority: 0.85 },
-  { path: '/contact', changeFrequency: 'monthly' as const, priority: 0.9 },
-];
+function getBaseUrl(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '');
+  if (fromEnv) return fromEnv;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return 'https://hagestack.com';
+}
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return routes.map(({ path, changeFrequency, priority }) => ({
-    url: path === '/' ? `${siteUrl}/` : `${siteUrl}${path}`,
-    lastModified: new Date(),
+  const base = getBaseUrl();
+  const now = new Date();
+
+  const paths = [
+    { path: '', priority: 1, changeFrequency: 'weekly' as const },
+    { path: '/services', priority: 0.9, changeFrequency: 'weekly' as const },
+    { path: '/about', priority: 0.85, changeFrequency: 'monthly' as const },
+    { path: '/portfolio', priority: 0.85, changeFrequency: 'weekly' as const },
+    { path: '/contact', priority: 0.9, changeFrequency: 'monthly' as const },
+  ];
+
+  return paths.map(({ path, priority, changeFrequency }) => ({
+    url: path === '' ? `${base}/` : `${base}${path}`,
+    lastModified: now,
     changeFrequency,
     priority,
   }));
