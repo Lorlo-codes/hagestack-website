@@ -5,6 +5,7 @@ import { Providers } from '@/components/Providers';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FloatingCTA from '@/components/FloatingCTA';
+import { resolvePublicSiteUrl } from '@/lib/site-url';
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -18,8 +19,7 @@ const jetbrainsMono = JetBrains_Mono({
   display: 'swap',
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '') ?? 'https://hagestack.com';
+const siteUrl = resolvePublicSiteUrl();
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
