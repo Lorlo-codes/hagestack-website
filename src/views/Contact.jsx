@@ -22,6 +22,8 @@ export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', company: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [refId, setRefId] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     if (submitted) {
@@ -33,9 +35,33 @@ export default function Contact() {
     setSelectedNeeds(prev => prev.includes(need) ? prev.filter(n => n !== need) : [...prev, need]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSubmitError('');
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          company: formData.company,
+          message: formData.message,
+          needs: selectedNeeds,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSubmitError(data.error || 'Something went wrong. Please try again.');
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      setSubmitError('Network error. Please check your connection and try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -193,12 +219,19 @@ export default function Contact() {
                     </div>
                   )}
 
+                  {submitError ? (
+                    <p className="font-mono text-xs text-destructive border border-destructive/40 bg-destructive/10 px-4 py-3" role="alert">
+                      {submitError}
+                    </p>
+                  ) : null}
+
                   <button
                     type="submit"
-                    className="w-full font-mono text-xs tracking-wider px-8 py-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 flex items-center justify-center gap-3"
+                    disabled={isSubmitting}
+                    className="w-full font-mono text-xs tracking-wider px-8 py-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-60 disabled:pointer-events-none"
                   >
                     <Send className="w-4 h-4" />
-                    SUBMIT ASSESSMENT
+                    {isSubmitting ? 'SENDING…' : 'SUBMIT ASSESSMENT'}
                   </button>
                 </form>
               )}
