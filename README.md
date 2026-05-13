@@ -30,6 +30,12 @@ Set **`NEXT_PUBLIC_SITE_URL`** to your live URL (for example `https://www.hagest
 
 `npm run dev`, `build`, `start`, `lint`, `typecheck` delegate to `apps/web`.
 
+## TypeScript / editor
+
+The app’s `tsconfig.json` is under **`apps/web`**. The repo root **`tsconfig.json`** only lists a [project reference](https://www.typescriptlang.org/docs/handbook/project-references.html) to `apps/web` so the workspace resolves correctly when you open the repository folder.
+
+If the IDE still shows red squiggles on `tsconfig` or missing `.next/types` files, run **`npm run build --prefix apps/web`** once (or `npm run dev` in that folder), then **Developer: Reload Window** so generated Next types exist and the language service picks them up.
+
 ## Base44 (optional)
 
 If you embed a Base44 app, set the `NEXT_PUBLIC_*` variables from the Base44 dashboard. For a static marketing site only, you can leave them unset.
