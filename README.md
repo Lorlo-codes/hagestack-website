@@ -1,39 +1,35 @@
-**Welcome to your Base44 project** 
+# HageStack website
 
-**About**
+Next.js 14 (App Router) site. Application code lives in **`apps/web`**.
 
-View and Edit  your app on [Base44.com](http://Base44.com) 
+## Local development
 
-This project contains everything you need to run your app locally.
+From the repository root:
 
-**Edit the code in your local development environment**
-
-Any change pushed to the repo will also be reflected in the Base44 Builder.
-
-**Prerequisites:** 
-
-1. Clone the repository using the project's Git URL 
-2. Navigate to the project directory
-3. Install dependencies: `npm install`
-4. Create an `.env.local` file and set the right environment variables
-
-```
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=your_backend_url
-
-e.g.
-VITE_BASE44_APP_ID=cbef744a8545c389ef439ea6
-VITE_BASE44_APP_BASE_URL=https://my-to-do-list-81bfaad7.base44.app
+```bash
+npm ci --prefix apps/web
+npm run dev
 ```
 
-Run the app: `npm run dev`
+Or work inside the app folder: `cd apps/web && npm install && npm run dev`.
 
-**Publish your changes**
+## Vercel
 
-Open [Base44.com](http://Base44.com) and click on Publish.
+The repo supports either setup:
 
-**Docs & Support**
+| Vercel **Root Directory** | What happens |
+|---------------------------|----------------|
+| *(empty — repository root)* | Root `vercel.json` runs `npm ci` and `npm run build` in `apps/web`. |
+| **`apps/web`** | Default install/build run in that folder (same as local `apps/web`). |
 
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
+If you previously saw **“Root Directory apps/web does not exist”**, pull this branch: the **`apps/web`** folder is now in the repo.
 
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+Set **`NEXT_PUBLIC_SITE_URL`** to your live URL (for example `https://www.hagestack.com`). Host-only values like `www.hagestack.com` are normalized at build time.
+
+## Scripts (from repo root)
+
+`npm run dev`, `build`, `start`, `lint`, `typecheck` delegate to `apps/web`.
+
+## Base44 (optional)
+
+If you embed a Base44 app, set the `NEXT_PUBLIC_*` variables from the Base44 dashboard. For a static marketing site only, you can leave them unset.
