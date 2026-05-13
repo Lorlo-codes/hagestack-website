@@ -17,6 +17,8 @@ const needsOptions = [
   'Camera Systems',
 ];
 
+const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/info@hagestack.com';
+
 export default function Contact() {
   const [selectedNeeds, setSelectedNeeds] = useState([]);
   const [formData, setFormData] = useState({ name: '', email: '', company: '', message: '' });
@@ -40,20 +42,27 @@ export default function Contact() {
     setSubmitError('');
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/contact', {
+      const res = await fetch(FORMSUBMIT_ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          company: formData.company,
-          message: formData.message,
-          needs: selectedNeeds,
+          company: formData.company || '—',
+          message: formData.message || '—',
+          needs: selectedNeeds.length ? selectedNeeds.join(', ') : '—',
+          _subject: `HageStack website: ${formData.name}`,
         }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setSubmitError(data.error || 'Something went wrong. Please try again.');
+      const ok = data.success === true || data.success === 'true';
+      if (!res.ok || !ok) {
+        setSubmitError(
+          typeof data.message === 'string' ? data.message : 'Could not send your message. Please try again.',
+        );
         return;
       }
       setSubmitted(true);
