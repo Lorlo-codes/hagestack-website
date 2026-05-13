@@ -1,9 +1,18 @@
 import { NextResponse } from 'next/server';
 
 const MAX_LEN = 8000;
+const MAX_SUBJECT = 200;
 
 function isNonEmptyString(v: unknown): v is string {
   return typeof v === 'string' && v.trim().length > 0;
+}
+
+function escapeHtml(s: string) {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
 export async function POST(request: Request) {
@@ -61,6 +70,12 @@ export async function POST(request: Request) {
     messageStr || '—',
   ].join('\n');
 
+  const subjectBase = `Website contact: ${name.trim()}`;
+  const subject =
+    subjectBase.length > MAX_SUBJECT ? `${subjectBase.slice(0, MAX_SUBJECT - 1)}…` : subjectBase;
+
+  const html = `<pre style="font-family:ui-monospace,system-ui,monospace;font-size:14px;line-height:1.5;white-space:pre-wrap">${escapeHtml(text)}</pre>`;
+
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -70,9 +85,10 @@ export async function POST(request: Request) {
     body: JSON.stringify({
       from,
       to: [to],
-      reply_to: emailTrim,
-      subject: `Website contact: ${name.trim()}`,
+      reply_to: [emailTrim],
+      subject,
       text,
+      html,
     }),
   });
 
