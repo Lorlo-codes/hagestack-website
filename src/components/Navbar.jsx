@@ -73,7 +73,7 @@ export default function Navbar() {
                 href="/contact"
                 className="font-mono text-xs tracking-wider px-5 py-2.5 border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all duration-300"
               >
-                SCHEDULE CONSULTATION
+                REQUEST CONSULTATION
               </Link>
             </div>
 
@@ -119,7 +119,7 @@ export default function Navbar() {
                 href="/contact"
                 className="mt-4 font-mono text-sm tracking-wider px-8 py-3 border border-primary text-primary hover:bg-primary hover:text-primary-foreground transition-all"
               >
-                SCHEDULE CONSULTATION
+                REQUEST CONSULTATION
               </Link>
             </div>
           </motion.div>

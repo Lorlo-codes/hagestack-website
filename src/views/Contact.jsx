@@ -6,15 +6,16 @@ import { Send, CheckCircle, Mail, MapPin, Clock } from 'lucide-react';
 
 const CLOUD_IMAGE = 'https://media.base44.com/images/public/6a048caa917d3fa3444ae735/d3c09f03d_generated_4defdca0.png';
 
+/** Matches individual offerings on /services */
 const needsOptions = [
-  'Security Assessment',
-  'Infrastructure Scaling',
-  'Process Automation',
-  'Web Development',
-  'Hardware Installation',
-  'Digital Transformation',
+  'Website Development',
+  'Custom Systems',
   'IT Consulting',
-  'Camera Systems',
+  'Security Camera Installation',
+  'Attendance Systems',
+  'Entry Pass Systems',
+  'Hardware Supplies',
+  'Other',
 ];
 
 const FORMSUBMIT_ENDPOINT = 'https://formsubmit.co/ajax/info@hagestack.com';
@@ -86,13 +87,13 @@ export default function Contact() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="max-w-xl">
             <div className="font-mono text-xs tracking-[0.3em] text-primary mb-4">
               <span className="inline-block w-8 h-px bg-primary mr-3 align-middle" />
-              INITIATE CONTACT
+              GET IN TOUCH
             </div>
             <h1 className="text-4xl lg:text-6xl font-light text-foreground tracking-tight mb-4">
-              Schedule a Consultation
+              Let&apos;s Build Something Remarkable
             </h1>
             <p className="text-muted-foreground leading-relaxed">
-              Tell us about your requirements and our team will get back to you within 24 hours with a tailored assessment.
+              Whether you need a consultation, a quote, or just want to explore your options — we&apos;re here to help.
             </p>
           </motion.div>
         </div>
@@ -127,7 +128,7 @@ export default function Contact() {
                     <MapPin className="w-4 h-4 text-primary mt-0.5" />
                     <div>
                       <div className="font-mono text-xs text-muted-foreground mb-1">SERVICE AREA</div>
-                      <p className="text-sm text-foreground">Nationwide + Remote</p>
+                      <p className="text-sm text-foreground">Worldwide</p>
                     </div>
                   </div>
                 </div>
@@ -169,7 +170,7 @@ export default function Contact() {
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="font-mono text-[10px] tracking-[0.3em] text-primary/60 mb-6">
-                    DIAGNOSTIC_FORM_v2.1
+                    CONTACT FORM
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -240,7 +241,7 @@ export default function Contact() {
                     className="w-full font-mono text-xs tracking-wider px-8 py-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 flex items-center justify-center gap-3 disabled:opacity-60 disabled:pointer-events-none"
                   >
                     <Send className="w-4 h-4" />
-                    {isSubmitting ? 'SENDING…' : 'SUBMIT ASSESSMENT'}
+                    {isSubmitting ? 'SENDING…' : 'SEND'}
                   </button>
                 </form>
               )}

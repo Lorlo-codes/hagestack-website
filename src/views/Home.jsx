@@ -91,7 +91,7 @@ export default function Home() {
                 href="/contact"
                 className="font-mono text-xs tracking-wider px-8 py-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 inline-flex items-center gap-3"
               >
-                SCHEDULE CONSULTATION
+                START A PROJECT
                 <span className="w-2 h-2 rounded-full bg-primary-foreground pulse-glow" />
               </Link>
               <Link
