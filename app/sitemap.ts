@@ -1,17 +1,12 @@
-import type { MetadataRoute } from 'next';
 import { resolvePublicSiteUrl } from '@/lib/site-url';
 
 function getBaseUrl(): string {
-  if (process.env.NEXT_PUBLIC_SITE_URL?.trim()) {
-    return resolvePublicSiteUrl();
-  }
-  if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
-  }
-  return resolvePublicSiteUrl();
+  
+
+  return "https://hagestack.com";
 }
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default function sitemap() {
   const base = getBaseUrl();
   const now = new Date();
 
